@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                // Clone your repo, change URL to your actual repo
+                git url: 'https://github.com/satyagilegitbytes/multi-cloud-app.git', branch: 'main'
+            }
+        }
+
+        stage('Prepare AWS main-only folder') {
+            steps {
+                script {
+                    sh '''
+                        mkdir -p terraform/aws/main-only
+                        cp terraform/aws/main.tf terraform/aws/main-only/
+                    '''
+                }
+            }
+        }
+
+        stage('Terraform Init & Apply - AWS') {
+            steps {
+                dir('terraform/aws/main-only') {
+                    sh 'terraform init -input=false'
+                    sh 'terraform apply -auto-approve -input=false'
+                }
+            }
+        }
+
+        stage('Prepare Azure main-only folder') {
+            steps {
+                script {
+                    sh '''
+                        mkdir -p terraform/gcp/main-only
+                        cp terraform/gcp/main.tf terraform/gcp/main-only/
+                    '''
+                }
+            }
+        }
+
+        stage('Terraform Init & Apply - GCP') {
+            steps {
+                dir('terraform/gcp/main-only') {
+                    sh 'terraform init -input=false'
+                    sh 'terraform apply -auto-approve -input=false'
+                }
+            }
+        }
+    }
+}

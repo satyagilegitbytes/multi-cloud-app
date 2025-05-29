@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = 'multi-cloud-app'
+        IMAGE_TAG = 'latest'
+        REGISTRY = 'docker.io/sarthaktyagiji' // update this
+        FULL_IMAGE = "${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+        DOCKER_DIR = 'docker'
+        K8S_DIR = 'kubernetes'
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git url: 'https://github.com/satyagilegitbytes/multi-cloud-app.git', branch: 'main'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir(DOCKER_DIR) {
+                    sh "docker build -t ${FULL_IMAGE} ."
+                }
+            }
+        }
+
+        // stage('Push Docker Image') {
+        //     steps {
+        //         withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+        //             sh """
+        //                 echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+        //                 docker push ${FULL_IMAGE}
+        //             """
+        //         }
+        //     }
+        // }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                dir(K8S_DIR) {
+                    // Replace image in deployment.yaml (optional if using kubectl set image)
+                    sh "kubectl apply -f deployment.yml"
+                    sh "kubectl apply -f service.yaml"
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ App deployed to Kubernetes."
+        }
+        failure {
+            echo "❌ Deployment failed. Check logs above."
+        }
+    }
+}
