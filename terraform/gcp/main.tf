@@ -1,14 +1,12 @@
 provider "azurerm" {
   features {}
 
-  storage_use_azuread = false
-  skip_provider_registration = true
-}
+  subscription_id = "00000000-0000-0000-0000-000000000000"
 
-resource "azurerm_storage_account" "demo" {
-  name                     = "localstorageacct"
-  resource_group_name      = "localgroup"
-  location                 = "eastus"
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
+  # Optional: Register only specific providers (or use "none")
+  resource_provider_registrations = [
+    "Microsoft.Compute",
+    "Microsoft.Storage",
+    "Microsoft.Network"
+  ]
 }
