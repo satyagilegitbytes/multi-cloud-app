@@ -15,4 +15,3 @@ docker run \
   -e MYSQL_PASSWORD=my_user_password \
   -p 3306:3306 \
   -d mysql:8.0
-  .
