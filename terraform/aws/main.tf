@@ -14,12 +14,3 @@ provider "aws" {
   config {
     s3_force_path_style = true
   }
-}
-resource "random_id" "bucket_suffix" {
-  byte_length = 4
-}
-
-resource "aws_s3_bucket" "sarthak_bucket" {
-  bucket = "sarthak-${random_id.bucket_suffix.hex}"
-  acl    = "private"
-}
